@@ -3,9 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var helmet = require('helmet');
-var session = require('express-session');
-var passport = require('passport');
+const helmet = require('helmet');
+const session = require('express-session');
+const passport = require('passport');
 var Strategy = require('passport-twitter').Strategy;
 var config = require('./config');
 
