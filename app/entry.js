@@ -178,6 +178,8 @@ function drawRanking(ctxScore, playersMap) {
   const playersArray = [].concat(Array.from(playersMap));
   playersArray.sort((a, b) => b[1].score - a[1].score);
 
+  gameObj.thumbsMap = gameObj.thumbsMap ?? new Map();
+
   ctxScore.fillStyle = "rgb(0, 0, 0)";
   ctxScore.fillRect(0, 220, gameObj.scoreCanvasWidth, 3);
 
@@ -188,10 +190,36 @@ function drawRanking(ctxScore, playersMap) {
     if (!playersArray[i]) return;
 
     const rank = i + 1;
-    ctxScore.fillText(
-      `${rank}th ${playersArray[i][1].displayName} ${playersArray[i][1].score}`,
-      10, 220 + (rank * 26)
-    );
+    const x = 10, y = 220 + (rank * 26);
+
+    const { playerId, thumbUrl, displayName, score } = playersArray[i][1];
+
+    if (/abs\.twimg\.com/.test(thumbUrl)) {
+      const thumbWidth = 20, thumbHeight = 20;
+      const rankWidth = ctxScore.measureText(`${rank}th `).width;
+
+      let thumb = null;
+
+      if (gameObj.thumbsMap.has(playerId)) {
+        thumb = gameObj.thumbsMap.get(playerId);
+        draw();
+      } else {
+        thumb = new Image();
+        thumb.src = thumbUrl;
+        thumb.onload = draw;
+        gameObj.thumbsMap.set(playerId, thumb);
+      }
+
+      function draw() {
+        ctxScore.fillText(`${rank}th `, x, y);
+        ctxScore.drawImage(thumb, x + rankWidth, y - thumbHeight, thumbWidth, thumbHeight);
+        ctxScore.fillText(` ${displayName} ${score}`, x + rankWidth + thumbWidth, y);
+      };
+
+      continue;
+    }
+
+    ctxScore.fillText(`${rank}th ${displayName} ${score}`, x, y);
   }
 }
 
@@ -222,6 +250,7 @@ socket.on('map data', (compressed) => {
     player.missilesMany = compressedPlayerData[7];
     player.airTime = compressedPlayerData[8];
     player.deadCount = compressedPlayerData[9];
+    player.thumbUrl = compressedPlayerData[10];
 
     gameObj.playersMap.set(player.playerId, player);
 
@@ -235,6 +264,7 @@ socket.on('map data', (compressed) => {
       gameObj.myPlayerObj.missilesMany = compressedPlayerData[7];
       gameObj.myPlayerObj.airTime = compressedPlayerData[8];
       gameObj.myPlayerObj.deadCount = compressedPlayerData[9];
+      gameObj.myPlayerObj.thumbUrl = compressedPlayerData[10];
     }
   }
 
