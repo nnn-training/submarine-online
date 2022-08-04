@@ -113,6 +113,7 @@ function getMapData() {
     playerDataForSend.push(plyer.missilesMany);
     playerDataForSend.push(plyer.airTime);
     playerDataForSend.push(plyer.deadCount);
+    playerDataForSend.push(plyer.thumbUrl);
 
     playersArray.push(playerDataForSend);
   }
