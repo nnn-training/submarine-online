@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const session = require('express-session');
 const passport = require('passport');
 const Strategy = require('passport-twitter').Strategy;
-const config = require('./config');
+const config = require('/etc/secrets/config');
 
 var indexRouter = require('./routes/index');
 const gameRouter = require('./routes/game');
