@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const config = require('../config');
+const config = require('/etc/secrets/config');
 
 router.get('/', (req, res, next) => {
   let displayName = 'anonymous';
