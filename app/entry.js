@@ -194,7 +194,7 @@ function drawRanking(ctxScore, playersMap) {
 
     const { playerId, thumbUrl, displayName, score } = playersArray[i][1];
 
-    if (/abs\.twimg\.com/.test(thumbUrl)) {
+    if (/twimg\.com/.test(thumbUrl)) {
       const thumbWidth = 20, thumbHeight = 20;
       const rankWidth = ctxScore.measureText(`${rank}th `).width;
 
