@@ -31,7 +31,7 @@ app.use(
     crossOriginEmbedderPolicy: false,
     contentSecurityPolicy: {
       directives: {
-        imgSrc: ["'self'", "abs.twimg.com"]
+        imgSrc: ["'self'", "*.twimg.com"]
       }
     }
   })
