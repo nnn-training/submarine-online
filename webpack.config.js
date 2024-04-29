@@ -1,5 +1,5 @@
 module.exports = {
-  context: __dirname + '/app',
+  context: __dirname + '/src/app',
   entry: {
     'index/' : './entry.js'
   },
