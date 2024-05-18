@@ -194,7 +194,7 @@ function drawRanking(ctxScore, playersMap) {
 
     const { playerId, thumbUrl, displayName, score } = playersArray[i][1];
 
-    if (/twimg\.com/.test(thumbUrl)) {
+    if (thumbUrl.includes('googleusercontent.com')) {
       const thumbWidth = 20, thumbHeight = 20;
       const rankWidth = ctxScore.measureText(`${rank}th `).width;
 
@@ -206,7 +206,7 @@ function drawRanking(ctxScore, playersMap) {
       } else {
         thumb = new Image();
         thumb.src = thumbUrl;
-        thumb.onload = draw;
+        thumb.addEventListener('load', draw);
         gameObj.thumbsMap.set(playerId, thumb);
       }
 
@@ -603,21 +603,21 @@ $(window).on("keydown", (event) => {
       sendChangeDirection(socket, 'right');
       break;
     case ' ': // スペースキー
-    if (gameObj.myPlayerObj.missilesMany <= 0) break; // ミサイルのストックが 0
+      if (gameObj.myPlayerObj.missilesMany <= 0) break; // ミサイルのストックが 0
 
-    gameObj.myPlayerObj.missilesMany -= 1;
-    const missileId = Math.floor(Math.random() * 100000) + ',' + gameObj.myPlayerObj.socketId + ',' + gameObj.myPlayerObj.x + ',' + gameObj.myPlayerObj.y;
+      gameObj.myPlayerObj.missilesMany -= 1;
+      const missileId = Math.floor(Math.random() * 100000) + ',' + gameObj.myPlayerObj.socketId + ',' + gameObj.myPlayerObj.x + ',' + gameObj.myPlayerObj.y;
 
-    const missileObj = {
-      emitPlayerId: gameObj.myPlayerObj.playerId,
-      x: gameObj.myPlayerObj.x,
-      y: gameObj.myPlayerObj.y,
-      direction: gameObj.myPlayerObj.direction,
-      id: missileId
-    };
-    gameObj.flyingMissilesMap.set(missileId, missileObj);
-    sendMissileEmit(socket, gameObj.myPlayerObj.direction);
-    break;
+      const missileObj = {
+        emitPlayerId: gameObj.myPlayerObj.playerId,
+        x: gameObj.myPlayerObj.x,
+        y: gameObj.myPlayerObj.y,
+        direction: gameObj.myPlayerObj.direction,
+        id: missileId
+      };
+      gameObj.flyingMissilesMap.set(missileId, missileObj);
+      sendMissileEmit(socket, gameObj.myPlayerObj.direction);
+      break;
   }
 });
 

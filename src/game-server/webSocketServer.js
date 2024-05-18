@@ -23,9 +23,8 @@ function createWebSocketServer(io, game) {
   });
 
   const socketTicker = setInterval(() => {
-      rootIo.volatile.emit('map data', game.getMapData()); // 全員に送信
-    },
-    66);
+    rootIo.volatile.emit('map data', game.getMapData()); // 全員に送信
+  }, 66);
 }
 
 module.exports = {

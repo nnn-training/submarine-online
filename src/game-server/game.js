@@ -1,5 +1,5 @@
 'use strict';
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
 const gameObj = {
   playersMap: new Map(),
@@ -41,7 +41,7 @@ const gameTicker = setInterval(() => {
   const playersAndNPCMap = new Map(Array.from(gameObj.playersMap).concat(Array.from(gameObj.NPCMap)));
   movePlayers(playersAndNPCMap); // 潜水艦の移動
   moveMissile(gameObj.flyingMissilesMap); // ミサイルの移動
-  checkGetItem(playersAndNPCMap, gameObj.itemsMap, gameObj.airMap, gameObj.flyingMissilesMap); // アイテムの取得チェック
+  checkGetItem(playersAndNPCMap, gameObj.itemsMap, gameObj.airMap, gameObj.flyingMissilesMap);
   addNPC();
 }, 33);
 

@@ -2,12 +2,11 @@
 
 const { Hono } = require("hono");
 const { logger } = require("hono/logger");
-const { html } = require("hono/html");
 const { secureHeaders } = require("hono/secure-headers");
+const { trimTrailingSlash } = require("hono/trailing-slash");
 const { serveStatic } = require("@hono/node-server/serve-static");
 const { googleAuth } = require("@hono/oauth-providers/google");
 const { getIronSession } = require("iron-session");
-const layout = require("./layout");
 
 const indexRouter = require("./routes/index");
 const gameRouter = require("./routes/game");
@@ -16,6 +15,7 @@ const app = new Hono();
 
 app.use(logger());
 app.use(serveStatic({ root: "./public" }));
+app.use(trimTrailingSlash());
 app.use(
   secureHeaders({
     contentSecurityPolicy: {
@@ -52,7 +52,7 @@ app.get("/logout", async (c) => {
   const session = c.get("session");
   session.destroy();
   return c.redirect("/");
-})
+});
 
 app.route("/", indexRouter);
 app.route("/game", gameRouter);
