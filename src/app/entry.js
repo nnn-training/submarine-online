@@ -9,7 +9,7 @@ const gameObj = {
   scoreCanvasHeight: 500,
   itemRadius: 4,
   airRadius: 5,
-  bomCellPx: 32,
+  explosionCellPx: 32,
   deg: 0,
   counter: 0,
   rotationDegreeByDirection: {
@@ -60,8 +60,8 @@ function init() {
   gameObj.missileImage.src = '/images/missile.png';
 
   // 爆発の画像集
-  gameObj.bomListImage = new Image();
-  gameObj.bomListImage.src = '/images/bomlist.png';
+  gameObj.explosionListImage = new Image();
+  gameObj.explosionListImage.src = '/images/explosionlist.png';
 }
 
 init();
@@ -123,7 +123,7 @@ function drawRadar(ctxRader) {
 
 function drawSubmarine(ctxRader, myPlayerObj) {
   if (myPlayerObj.isAlive === false) {
-    drawBom(ctxRader, gameObj.raderCanvasWidth / 2, gameObj.raderCanvasHeight / 2, myPlayerObj.deadCount);
+    drawExplosion(ctxRader, gameObj.raderCanvasWidth / 2, gameObj.raderCanvasHeight / 2, myPlayerObj.deadCount);
     return;
   }
   const rotationDegree = gameObj.rotationDegreeByDirection[myPlayerObj.direction];
@@ -140,19 +140,19 @@ function drawSubmarine(ctxRader, myPlayerObj) {
   ctxRader.restore();
 }
 
-function drawBom(ctxRader, drawX, drawY, deadCount) {
+function drawExplosion(ctxRader, drawX, drawY, deadCount) {
   if (deadCount >= 60) return;
 
-  const drawBomNumber = Math.floor(deadCount / 6);
-  const cropX = (drawBomNumber % (gameObj.bomListImage.width / gameObj.bomCellPx)) * gameObj.bomCellPx;
-  const cropY = Math.floor(drawBomNumber / (gameObj.bomListImage.width / gameObj.bomCellPx)) * gameObj.bomCellPx;
+  const drawExplosionNumber = Math.floor(deadCount / 6);
+  const cropX = (drawExplosionNumber % (gameObj.explosionListImage.width / gameObj.explosionCellPx)) * gameObj.explosionCellPx;
+  const cropY = Math.floor(drawExplosionNumber / (gameObj.explosionListImage.width / gameObj.explosionCellPx)) * gameObj.explosionCellPx;
 
   ctxRader.drawImage(
-    gameObj.bomListImage,
+    gameObj.explosionListImage,
     cropX, cropY,
-    gameObj.bomCellPx, gameObj.bomCellPx,
-    drawX - gameObj.bomCellPx / 2, drawY - gameObj.bomCellPx / 2,
-    gameObj.bomCellPx, gameObj.bomCellPx
+    gameObj.explosionCellPx, gameObj.explosionCellPx,
+    drawX - gameObj.explosionCellPx / 2, drawY - gameObj.explosionCellPx / 2,
+    gameObj.explosionCellPx, gameObj.explosionCellPx
   ); // 画像データ、切り抜き左、切り抜き上、幅、幅、表示x、表示y、幅、幅
 }
 
@@ -194,7 +194,7 @@ function drawRanking(ctxScore, playersMap) {
 
     const { playerId, thumbUrl, displayName, score } = playersArray[i][1];
 
-    if (/twimg\.com/.test(thumbUrl)) {
+    if (thumbUrl.includes('googleusercontent.com')) {
       const thumbWidth = 20, thumbHeight = 20;
       const rankWidth = ctxScore.measureText(`${rank}th `).width;
 
@@ -206,7 +206,7 @@ function drawRanking(ctxScore, playersMap) {
       } else {
         thumb = new Image();
         thumb.src = thumbUrl;
-        thumb.onload = draw;
+        thumb.addEventListener('load', draw);
         gameObj.thumbsMap.set(playerId, thumb);
       }
 
@@ -295,20 +295,20 @@ function getRadian(deg) {
 
 function drawMap(gameObj) {
   // 敵プレイヤーと NPC の描画
-  for (let [key, tekiPlayerObj] of gameObj.playersMap) {
+  for (let [key, enemyPlayerObj] of gameObj.playersMap) {
     if (key === gameObj.myPlayerObj.playerId) { continue; } // 自分は描画しない
 
     const distanceObj = calculationBetweenTwoPoints(
       gameObj.myPlayerObj.x, gameObj.myPlayerObj.y,
-      tekiPlayerObj.x, tekiPlayerObj.y,
+      enemyPlayerObj.x, enemyPlayerObj.y,
       gameObj.fieldWidth, gameObj.fieldHeight,
       gameObj.raderCanvasWidth, gameObj.raderCanvasHeight
     );
 
     if (distanceObj.distanceX <= (gameObj.raderCanvasWidth / 2) && distanceObj.distanceY <= (gameObj.raderCanvasHeight / 2)) {
 
-      if (tekiPlayerObj.isAlive === false) {
-        drawBom(gameObj.ctxRader, distanceObj.drawX, distanceObj.drawY, tekiPlayerObj.deadCount);
+      if (enemyPlayerObj.isAlive === false) {
+        drawExplosion(gameObj.ctxRader, distanceObj.drawX, distanceObj.drawY, enemyPlayerObj.deadCount);
         continue;
       }
 
@@ -340,7 +340,7 @@ function drawMap(gameObj) {
       gameObj.ctxRader.arc(distanceObj.drawX, distanceObj.drawY, clearRadius2, 0, Math.PI * 2, true);
       gameObj.ctxRader.fill();
 
-      if (tekiPlayerObj.displayName === 'anonymous') {
+      if (enemyPlayerObj.displayName === 'anonymous') {
 
         gameObj.ctxRader.strokeStyle = `rgba(250, 250, 250, ${toumeido})`;
         gameObj.ctxRader.fillStyle = `rgba(250, 250, 250, ${toumeido})`;
@@ -353,7 +353,7 @@ function drawMap(gameObj) {
         gameObj.ctxRader.font = '8px Arial';
         gameObj.ctxRader.fillText('anonymous', distanceObj.drawX + 20, distanceObj.drawY - 20 - 1);
 
-      } else if (tekiPlayerObj.displayName) {
+      } else if (enemyPlayerObj.displayName) {
 
         gameObj.ctxRader.strokeStyle = `rgba(250, 250, 250, ${toumeido})`;
         gameObj.ctxRader.fillStyle = `rgba(250, 250, 250, ${toumeido})`;
@@ -364,7 +364,7 @@ function drawMap(gameObj) {
         gameObj.ctxRader.stroke();
 
         gameObj.ctxRader.font = '8px Arial';
-        gameObj.ctxRader.fillText(tekiPlayerObj.displayName, distanceObj.drawX + 20, distanceObj.drawY - 20 - 1);
+        gameObj.ctxRader.fillText(enemyPlayerObj.displayName, distanceObj.drawX + 20, distanceObj.drawY - 20 - 1);
 
       }
     }
@@ -603,21 +603,21 @@ $(window).on("keydown", (event) => {
       sendChangeDirection(socket, 'right');
       break;
     case ' ': // スペースキー
-    if (gameObj.myPlayerObj.missilesMany <= 0) break; // ミサイルのストックが 0
+      if (gameObj.myPlayerObj.missilesMany <= 0) break; // ミサイルのストックが 0
 
-    gameObj.myPlayerObj.missilesMany -= 1;
-    const missileId = Math.floor(Math.random() * 100000) + ',' + gameObj.myPlayerObj.socketId + ',' + gameObj.myPlayerObj.x + ',' + gameObj.myPlayerObj.y;
+      gameObj.myPlayerObj.missilesMany -= 1;
+      const missileId = Math.floor(Math.random() * 100000) + ',' + gameObj.myPlayerObj.socketId + ',' + gameObj.myPlayerObj.x + ',' + gameObj.myPlayerObj.y;
 
-    const missileObj = {
-      emitPlayerId: gameObj.myPlayerObj.playerId,
-      x: gameObj.myPlayerObj.x,
-      y: gameObj.myPlayerObj.y,
-      direction: gameObj.myPlayerObj.direction,
-      id: missileId
-    };
-    gameObj.flyingMissilesMap.set(missileId, missileObj);
-    sendMissileEmit(socket, gameObj.myPlayerObj.direction);
-    break;
+      const missileObj = {
+        emitPlayerId: gameObj.myPlayerObj.playerId,
+        x: gameObj.myPlayerObj.x,
+        y: gameObj.myPlayerObj.y,
+        direction: gameObj.myPlayerObj.direction,
+        id: missileId
+      };
+      gameObj.flyingMissilesMap.set(missileId, missileObj);
+      sendMissileEmit(socket, gameObj.myPlayerObj.direction);
+      break;
   }
 });
 
